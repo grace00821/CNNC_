@@ -108,20 +108,18 @@ with tf.device('/device:GPU:3'):
         model.add(Flatten())
         model.add(Dense(512))
         model.add(Activation('relu'))
-        model.add(Dropout(0.7))
+        model.add(Dropout(0.5))
         if num_classes <2:
             print ('no enough categories')
             sys.exit()
         elif num_classes ==2:
             model.add(Dense(1, activation='sigmoid'))
-            # sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-            sgd = Adam(learning_rate=0.001)
+            sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
             model.compile(optimizer=sgd,loss='binary_crossentropy',metrics=['accuracy'])
         else:
             model.add(Dense(num_classes))
             model.add(Activation('softmax'))
-            # sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-            sgd = Adam(learning_rate=0.001)
+            sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
             model.compile(optimizer=sgd,loss='categorical_crossentropy',metrics=['accuracy'])
 
         early_stopping = keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=50, verbose=0, mode='auto')
