@@ -9,6 +9,7 @@ import keras
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Activation, Flatten
+from keras.regularizers import L1, L2, L1L2
 from keras.layers import Conv2D, MaxPooling2D
 from keras.optimizers import SGD, Adam
 from keras.callbacks import EarlyStopping,ModelCheckpoint
@@ -32,7 +33,7 @@ epochs = 20     #### iterations of trainning, with GPU 1080, 600 for KEGG and Re
 model_name = 'keras_cnn_trained_model_shallow.h5'
 ###################################################
 
-with tf.device('/device:GPU:3'):
+with tf.device('/device:GPU:2'):
 
     def load_data_TF2(indel_list,data_path): # cell type specific  ## random samples for reactome is not enough, need borrow some from keggp
         import random
@@ -106,7 +107,7 @@ with tf.device('/device:GPU:3'):
         model.add(Dropout(0.25))
 
         model.add(Flatten())
-        model.add(Dense(512))
+        model.add(Dense(256))
         model.add(Activation('relu'))
         model.add(Dropout(0.7))
         if num_classes <2:
@@ -115,13 +116,13 @@ with tf.device('/device:GPU:3'):
         elif num_classes ==2:
             model.add(Dense(1, activation='sigmoid'))
             # sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-            sgd = Adam(learning_rate=0.001)
+            sgd = Adam(learning_rate=0.0007)
             model.compile(optimizer=sgd,loss='binary_crossentropy',metrics=['accuracy'])
         else:
-            model.add(Dense(num_classes))
+            model.add(Dense(num_classes, kernel_regularizer=L2(0.001)))
             model.add(Activation('softmax'))
             # sgd = SGD(lr=0.01, decay=1e-6, momentum=0.9, nesterov=True)
-            sgd = Adam(learning_rate=0.001)
+            sgd = Adam(learning_rate=0.0007)
             model.compile(optimizer=sgd,loss='categorical_crossentropy',metrics=['accuracy'])
 
         early_stopping = keras.callbacks.EarlyStopping(monitor='val_accuracy', patience=50, verbose=0, mode='auto')
